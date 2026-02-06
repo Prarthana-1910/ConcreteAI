@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConcreteAI | Engineering Intelligence</title>
+    <style>
+        :root {
+            --bg-dark: #0a0c10;
+            --card-bg: #11141d;
+            --accent-blue: #3b82f6;
+            --text-gray: #94a3b8;
+            --border-color: #1e293b;
+            font-size: 14px; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 6%;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .logo { font-size: 1.3rem; font-weight: bold; cursor: pointer; }
+        
+        .nav-right { display: flex; align-items: center; gap: 25px; }
+
+        .nav-links span {
+            color: var(--text-gray);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        
+        .nav-links span:hover, .active { color: white !important; }
+
+        .btn-get-estimate {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--accent-blue);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-get-estimate:hover {
+            background: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Home View */
+        #home-view { display: block; }
+
+        .hero {
+            min-height: 130vh;
+            background: linear-gradient(to right, rgba(10,12,16,0.95) 30%, rgba(10,12,16,0.4)),
+                        url("{{ url_for('static', filename='grunge-wall-texture_1194-6108.avif') }}");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; 
+            align-items: flex-start;
+            text-align: left;
+            padding: 120px 8% 0; 
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            margin-bottom: 1.2rem;
+            letter-spacing: -1px;
+            max-width: 800px;
+        }
+
+        .hero-description {
+            color: var(--text-gray);
+            max-width: 650px; 
+            font-size: 1.2rem; 
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+
+        .highlights { display: flex; gap: 20px; width: 100%; }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 20px 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            min-width: 160px;
+            backdrop-filter: blur(4px);
+        }
+
+        .stat-card h3 { font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 4px; }
+        .stat-card p { color: var(--text-gray); font-size: 0.85rem; }
+
+        /* Estimator View */
+        #estimator-view {
+            display: none;
+            padding: 120px 8% 60px;
+            min-height: 100vh;
+        }
+
+        .section-title { font-size: 2rem; margin-bottom: 3rem; }
+
+        /* --- GRID LAYOUT --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1.3fr 0.9fr; 
+            gap: 40px;
+            max-width: 1200px;
+            align-items: start; /* Vital for sticky sidebar */
+        }
+
+        .input-card {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* --- STICKY SIDEBAR --- */
+        .output-wrapper {
+            position: sticky;
+            top: 100px; /* Sticks 100px from top of viewport */
+            height: fit-content;
+        }
+
+        .output-card {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            min-height: 300px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .output-card.has-results {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+        }
+
+        label { display: block; margin-bottom: 8px; color: var(--text-gray); font-size: 0.9rem; }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1f2e;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus { border-color: var(--accent-blue); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .btn-analyze {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3); }
+
+        .output-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+        .val { color: var(--accent-blue); font-weight: bold; font-size: 1.1rem; }
+
+        .info-pill {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        footer {
+            padding: 40px 8%;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-top: 0;
+        }
+
+        /* ================= MOBILE RESPONSIVENESS ================= */
+        @media (max-width: 900px) {
+            .grid-container {
+                grid-template-columns: 1fr; /* Stack vertically */
+                gap: 30px;
+            }
+            
+            /* Disable sticky on mobile so it sits naturally at the bottom */
+            .output-wrapper {
+                position: static; 
+            }
+
+            .hero { padding-top: 140px; padding-bottom: 60px; }
+            .hero h1 { font-size: 2.5rem; }
+            
+            .highlights { flex-wrap: wrap; }
+            .stat-card { width: 100%; }
+            
+            nav { flex-direction: column; gap: 15px; }
+            .nav-right { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo" onclick="showPage('home')">🏗️ ConcreteAI</div>
+        <div class="nav-right">
+            <div class="nav-links">
+                <span id="nav-home" class="active" onclick="showPage('home')">Home</span>
+            </div>
+            <button class="btn-get-estimate" onclick="showPage('estimator')">Get Estimate</button>
+        </div>
+    </nav>
+
+    <section id="home-view">
+        <div class="hero">
+            <h1>ConcreteAI Intelligence</h1>
+            <p class="hero-description">
+                Real-time AI to predict concrete's strength, costs, and carbon emissions instantly. 
+                Replace reactive testing with predictive intelligence to optimize material performance, 
+                protect project margins, and achieve sustainability targets.
+            </p>
+            
+            <div class="highlights">
+                <div class="stat-card">
+                    <h3>95%</h3>
+                    <p>R2 Score</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Field-Validated</h3>
+                    <p>Real-World Dataset</p>
+                </div>
+                <div class="stat-card">
+                    <h3>CatBoost</h3>
+                    <p>AI-Powered Model</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="estimator-view">
+        <h2 class="section-title">Mix Design Predictor</h2>
+        <div class="grid-container">
+            
+            <div class="input-card">
+                <h4 style="margin-bottom: 20px; color: white;">Input Materials</h4>
+                
+                <label>Cement (kg/m³)</label>
+                <input type="number" id="cement" placeholder="e.g. 350" step="any">
+
+                <label>Fly Ash (kg/m³)</label>
+                <input type="number" id="flyash" placeholder="e.g. 100" step="any">
+
+                <label>GGBS (kg/m³)</label>
+                <input type="number" id="ggbs" placeholder="e.g. 50" step="any">
+
+                <label>Coarse Aggregate (kg/m³)</label>
+                <input type="number" id="coarse_agg" placeholder="e.g. 1100" step="any">
+
+                <label>Fine Aggregate (kg/m³)</label>
+                <input type="number" id="fine_agg" placeholder="e.g. 750" step="any">
+
+                <label>Water (kg/m³)</label>
+                <input type="number" id="water" placeholder="e.g. 180" step="any">
+
+                <label>Admixture (Ltrs)</label>
+                <input type="number" id="admixture" placeholder="e.g. 3.5" step="any">
+
+                <label>Target Days (N)</label>
+                <input type="number" id="days" placeholder="e.g. 28">
+
+                <button class="btn-analyze" onclick="generateOutput()">Predict Strength</button>
+            </div>
+
+            <div class="output-wrapper">
+                <div class="output-card" id="results">
+                    <div style="text-align: center; padding: 20px 0;">
+                        <h3 style="color: var(--accent-blue); margin-bottom: 10px;">Ready to Analyze</h3>
+                        <p style="color: var(--text-gray); margin-bottom: 30px; font-size: 0.9rem;">
+                            Fill in the mix parameters to generate real-time strength, cost, and emission predictions.
+                        </p>
+                        
+                        <div class="info-pill">
+                            <span>🚀</span>
+                            <div style="text-align: left;">
+                                <p style="color:white; font-weight:500;">High Precision</p>
+                                <p>Powered by CatBoost Algorithm</p>
+                            </div>
+                        </div>
+                        <div class="info-pill">
+                            <span>🌱</span>
+                            <div style="text-align: left;">
+                                <p style="color:white; font-weight:500;">Eco-Conscious</p>
+                                <p>Tracks CO2 Emission factors</p>
+                            </div>
+                        </div>
+                        <div class="info-pill">
+                            <span>💰</span>
+                            <div style="text-align: left;">
+                                <p style="color:white; font-weight:500;">Cost Estimator</p>
+                                <p>Live material cost calculation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <p>Team Anveshi | Nirma University</p>
+        <p>Data Privacy Protected</p>
+    </footer>
+
+    <script>
+        function showPage(page) {
+            const home = document.getElementById('home-view');
+            const estimator = document.getElementById('estimator-view');
+            const navHome = document.getElementById('nav-home');
+
+            if(page === 'home') {
+                home.style.display = 'block';
+                estimator.style.display = 'none';
+                navHome.classList.add('active');
+            } else {
+                home.style.display = 'block'; 
+                home.style.display = 'none';
+                estimator.style.display = 'block';
+                navHome.classList.remove('active');
+                window.scrollTo(0,0);
+            }
+        }
+
+        async function generateOutput() {
+            const inputs = {
+                cement: document.getElementById('cement').value,
+                flyash: document.getElementById('flyash').value,
+                ggbs: document.getElementById('ggbs').value,
+                coarse_agg: document.getElementById('coarse_agg').value,
+                fine_agg: document.getElementById('fine_agg').value,
+                water: document.getElementById('water').value,
+                admixture: document.getElementById('admixture').value,
+                days: document.getElementById('days').value
+            };
+
+            for (let key in inputs) {
+                if (inputs[key] === "") {
+                    alert("Please fill in all fields.");
+                    return;
+                }
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.classList.add('has-results');
+            
+            resultsDiv.innerHTML = `
+                <div style="text-align:center; padding: 40px;">
+                    <p style="color:var(--text-gray);">Analyzing Mix Design...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inputs)
+                });
+
+                if (!response.ok) { throw new Error('Network response was not ok'); }
+
+                const data = await response.json();
+
+                resultsDiv.innerHTML = `
+                    <h4 style="margin-bottom:25px; font-size: 1.3rem; color: var(--accent-blue);">Prediction Results</h4>
+                    
+                    <div class="output-item">
+                        <span>Compressive Strength (${inputs.days} Days)</span> 
+                        <span class="val">${data.strength} MPa</span>
+                    </div>
+                    
+                    <div class="output-item">
+                        <span>Estimated Cost</span> 
+                        <span class="val">₹${data.cost}</span>
+                    </div>
+                    
+                    <div class="output-item" style="border-bottom: none;">
+                        <span>CO2 Emissions</span> 
+                        <span class="val">${data.co2} kg</span>
+                    </div>
+
+                    <div style="margin-top: 25px; padding: 20px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid var(--accent-blue);">
+                        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6;">
+                            <strong style="color: white; display:block; margin-bottom:5px;">AI Analysis:</strong> 
+                            This mix is optimized for the ${inputs.days}-day target.
+                        </p>
+                    </div>
+                    
+                    <button onclick="location.reload()" style="margin-top:20px; background:transparent; border:1px solid var(--border-color); color:var(--text-gray); padding:8px 15px; border-radius:20px; cursor:pointer; font-size:0.8rem;">
+                        Reset Calculation
+                    </button>
+                `;
+
+                // --- MOBILE SMART SCROLL ---
+                if (window.innerWidth <= 900) {
+                    setTimeout(() => {
+                        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `
+                    <p style="color: #ef4444; text-align: center; margin-top: 50px;">
+                        Error connecting to backend.
+                    </p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
