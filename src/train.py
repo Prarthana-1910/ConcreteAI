@@ -13,16 +13,15 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, cross_val_score
 
-# Load Data
+
 df = pd.read_csv(r"data\features.csv")
 
 X = df[['Cement', 'GGBS', 'FlyAsh', 'Water', 'CoarseAggregate', 'Sand', 'Admixture', 'WBRatio', 'age']]
 y = df['Strength']
 
-# Split Data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# --- 1. Initial Model Comparison ---
+# --- Initial Model Comparison ---
 models = {
     "RandomForest": Pipeline([
         ('scaler', StandardScaler()),
@@ -66,7 +65,7 @@ results_df = pd.DataFrame(results).sort_values(by="R2", ascending=False)
 print("\n--- Model Performance Comparison ---")
 print(results_df)
 
-# --- 2. Hyperparameter Tuning (FOR CATBOOST ONLY) ---
+# --- Hyperparameter Tuning---
 
 param_grid = {
     'regressor__iterations': [300, 500, 800],
@@ -83,7 +82,6 @@ def create_pipeline():
 
 results_comparison = []
 
-# Grid Search
 print("\nStarting Grid Search...")
 start = time.time()
 
@@ -96,7 +94,6 @@ results_comparison.append({
     'Time (s)': time.time() - start
 })
 
-# Random Search
 print("Starting Random Search...")
 start = time.time()
 
@@ -113,7 +110,7 @@ comparison_df = pd.DataFrame(results_comparison)
 print("\n--- Hyperparameter Tuning Performance ---")
 print(comparison_df)
 
-# Save Best CatBoost Model
+
 best_model = grid.best_estimator_
 model_path = "models/Tuned_CatBoost.joblib"
 joblib.dump(best_model, model_path)
@@ -121,7 +118,6 @@ joblib.dump(best_model, model_path)
 print(f"Tuned model saved successfully to: {model_path}")
 print(f"Best Parameters found: \n{grid.best_params_}")
 
-# --- 2. Hyperparameter Tuning (FOR XGBOOST ONLY) ---
 
 param_grid = {
     'regressor__n_estimators': [300, 600],
@@ -133,7 +129,7 @@ param_grid = {
 
 def create_xgb_pipeline():
     return Pipeline([
-        ('scaler', StandardScaler()),   # You can remove this; XGBoost doesn't need scaling
+        ('scaler', StandardScaler()),   
         ('regressor', XGBRegressor(
             objective='reg:squarederror',
             random_state=42,
@@ -143,7 +139,7 @@ def create_xgb_pipeline():
 
 results_comparison = []
 
-# 🔹 Grid Search
+
 print("\nStarting Grid Search (XGBoost)...")
 start = time.time()
 
@@ -163,7 +159,6 @@ results_comparison.append({
     'Time (s)': time.time() - start
 })
 
-# 🔹 Random Search
 print("Starting Random Search (XGBoost)...")
 start = time.time()
 
@@ -189,7 +184,6 @@ comparison_df = pd.DataFrame(results_comparison)
 print("\n--- XGBoost Hyperparameter Tuning Performance ---")
 print(comparison_df)
 
-# ✅ Save Best Model
 best_model = grid.best_estimator_
 model_path = "models/Tuned_XGBoost.joblib"
 joblib.dump(best_model, model_path)
