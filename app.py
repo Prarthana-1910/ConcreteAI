@@ -5,8 +5,26 @@ import joblib
 app = Flask(__name__)
 model = joblib.load("models/Tuned_CatBoostRegressor.joblib") 
 
-COSTS = np.array([6.0, 2.0, 3.6, 0.05, 1.1, 0.9, 150.0])
-CO2_FACTORS = np.array([0.82, 0.02, 0.06, 0.0003, 0.005, 0.005, 0.02])
+COSTS = np.array([
+    6.0,    # Cement
+    2.0,    # FlyAsh
+    3.6,    # GGBS
+    0.0,    # Water
+    1.05,   # Coarse Aggregate (avg of 10mm & 20mm)
+    0.9,    # Sand
+    45.0    # Admixture
+])
+
+CO2_FACTORS = np.array([
+    1.008,   # Cement
+    0.026,   # FlyAsh
+    0.064,   # GGBS
+    0.0003,  # Water
+    0.014,   # Coarse Aggregate (10mm+20mm)
+    0.006,   # Sand
+    0.72     # Admixture
+])
+
 
 # ================= HOME PAGE =================
 @app.route('/')
