@@ -29,9 +29,9 @@ Computes total mix cost using material proportions and unit pricing, enabling ec
 
 ### 3. Carbon Footprint Estimation
 
-Calculates embodied CO₂ emissions using emission factors associated with cement, aggregates, SCMs, and admixtures.
+Calculates embodied CO₂ emissions using emission factors associated with cement, aggregates, GGBS, FlyAsh and admixtures.
 
-### 4. Mix Optimization
+### 4. Analysis
 
 Supports engineering trade-off analysis between:
 
@@ -55,7 +55,7 @@ Users define material quantities, including:
 * Water
 * Fine aggregates
 * Coarse aggregates
-* Supplementary Cementitious Materials (SCMs)
+* Supplementary Cementitious Materials (SCMs): FlyAsh, GGBS
 * Chemical admixtures
 * Curing age
 
@@ -67,7 +67,7 @@ Users define material quantities, including:
 
 ### Step 3 — Model Inference
 
-A trained regression model processes the feature set to predict compressive strength.
+A trained regression model (CatBoost) processes the feature set to predict compressive strength.
 
 ### Step 4 — Analytical Computation
 
@@ -75,6 +75,7 @@ Independent calculation modules estimate:
 
 * Total material cost
 * Total CO₂ emissions
+* Total compressive strength
 
 ### Step 5 — Output Generation
 
@@ -102,13 +103,13 @@ Users compare multiple mix configurations to select the most balanced design.
 ### Model Development
 
 * Supervised regression modeling
-* Algorithm selection (e.g., ensemble or tree-based regressors where applicable)
-* Hyperparameter tuning
+* Algorithm selection (Here, CatBoost)
+* Hyperparameter tuning 
 * Cross-validation
 
 ### Model Evaluation
 
-Performance metrics may include:
+Performance metrics include:
 
 * Mean Absolute Error (MAE)
 * Root Mean Squared Error (RMSE)
@@ -129,9 +130,9 @@ Performance metrics may include:
 | Programming Language  | Python                           |
 | Machine Learning      | Scikit-learn                     |
 | Data Processing       | Pandas, NumPy                    |
-| Visualization         | Matplotlib                       |
-| Backend (if deployed) | Flask or Python server framework |
-| Interface             | HTML / CSS                       |
+| Visualization         | Matplotlib, Seaborn              |
+| Backend               | Flask & render for cloud deployment |
+| Interface             | HTML & CSS                       |
 
 
 
@@ -158,7 +159,7 @@ ConcreteAI demonstrates the integration of Artificial Intelligence with civil/ma
 
 ## Project Nature
 
-This is a personal research and engineering project showcasing interdisciplinary application across:
+This is a research and engineering project showcasing interdisciplinary application across:
 
 * Machine Learning
 * Sustainable Engineering
