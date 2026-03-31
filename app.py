@@ -34,7 +34,7 @@ COSTS = np.array([
     2.0,    # Fly Ash
     3.6,    # GGBS
     8.0,    # Metakaolin
-    0.0,    # Water
+    0.1,    # Water
     0.9,    # Sand
     45.0,   # Admixture
     1.05    # Coarse Aggregate
